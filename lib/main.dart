@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uuid/uuid.dart';
+import 'core/theme/app_theme.dart';
 import 'models/link_model.dart';
+import 'models/folder_model.dart';
 import 'services/storage_service.dart';
 import 'services/metadata_service.dart';
 import 'screens/home_screen.dart';
@@ -11,18 +13,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(LinkModelAdapter());
+  Hive.registerAdapter(FolderModelAdapter());
   await StorageService.init();
-  runApp(const MyApp());
+  runApp(const LinkSaverApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class LinkSaverApp extends StatefulWidget {
+  const LinkSaverApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<LinkSaverApp> createState() => _LinkSaverAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _LinkSaverAppState extends State<LinkSaverApp> {
   final _uuid = const Uuid();
 
   @override
@@ -31,20 +34,20 @@ class _MyAppState extends State<MyApp> {
     _listenForSharedLinks();
   }
 
+  // ─── Başka uygulamalardan gelen paylaşılan linkler ─────────────────────────
+
   void _listenForSharedLinks() {
-    // Uygulama açıkken paylaşılan linkler
+    // Uygulama açıkken gelen paylaşım
     ReceiveSharingIntent.instance.getMediaStream().listen(
       (files) => _handleShared(files),
       onError: (_) {},
     );
 
-    // Uygulama kapalıyken paylaşılan link ile açıldığında
-    ReceiveSharingIntent.instance.getInitialMedia().then(
-      (files) {
-        _handleShared(files);
-        ReceiveSharingIntent.instance.reset();
-      },
-    );
+    // Uygulama kapalıyken gelen paylaşım ile açılma
+    ReceiveSharingIntent.instance.getInitialMedia().then((files) {
+      _handleShared(files);
+      ReceiveSharingIntent.instance.reset();
+    });
   }
 
   Future<void> _handleShared(List<SharedMediaFile> files) async {
@@ -52,12 +55,10 @@ class _MyAppState extends State<MyApp> {
       final text = file.path;
       if (text.isEmpty) continue;
 
-      // URL içeren metni bul
       final urlRegex = RegExp(r'https?://[^\s]+', caseSensitive: false);
       final match = urlRegex.firstMatch(text);
       final url = match?.group(0) ?? text;
 
-      // Önce kaydet, sonra metadata çek
       final link = LinkModel(
         id: _uuid.v4(),
         url: url,
@@ -77,15 +78,14 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  // ─── Build ────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Link Saver',
+      title: 'LinkSaver',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       home: const HomeScreen(),
     );
   }

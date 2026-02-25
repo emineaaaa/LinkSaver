@@ -25,6 +25,9 @@ class LinkModel extends HiveObject {
   @HiveField(6)
   late List<String> tags;
 
+  @HiveField(7)
+  late bool isFavorite;
+
   LinkModel({
     required this.id,
     required this.url,
@@ -33,5 +36,6 @@ class LinkModel extends HiveObject {
     this.faviconUrl,
     required this.savedAt,
     List<String>? tags,
+    this.isFavorite = false,
   }) : tags = tags ?? [];
 }
