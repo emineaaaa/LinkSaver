@@ -29,6 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
 
+  // Listenable'ı bir kez oluştur — her build'de yeni nesne üretmesin
+  late final _linksListenable = StorageService.box.listenable();
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -38,11 +41,12 @@ class _HomeScreenState extends State<HomeScreen> {
   // ─── Arama filtresi ────────────────────────────────────────────────────────
 
   List<LinkModel> _filtered(List<LinkModel> all) {
-    if (_searchQuery.isEmpty) return all;
-    final q = _searchQuery.toLowerCase();
+    final q = _searchQuery.trim().toLowerCase();
+    if (q.isEmpty) return all;
     return all.where((l) {
       return l.url.toLowerCase().contains(q) ||
-          (l.title?.toLowerCase().contains(q) ?? false);
+          (l.title?.toLowerCase().contains(q) ?? false) ||
+          (l.description?.toLowerCase().contains(q) ?? false);
     }).toList();
   }
 
@@ -91,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: const FolderDrawer(),
       appBar: _buildAppBar(),
       body: ValueListenableBuilder(
-        valueListenable: StorageService.box.listenable(),
+        valueListenable: _linksListenable,
         builder: (context, box, child) {
           final all = StorageService.getAll();
           final links = _filtered(all);
@@ -104,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   searchController: _searchController,
                   searchQuery: _searchQuery,
                   onSearchChanged: (v) =>
-                      setState(() => _searchQuery = v.toLowerCase()),
+                      setState(() => _searchQuery = v),
                   onSearchClear: () {
                     _searchController.clear();
                     setState(() => _searchQuery = '');
