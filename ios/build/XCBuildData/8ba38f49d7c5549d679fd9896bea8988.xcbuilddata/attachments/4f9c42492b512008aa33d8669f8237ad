@@ -1,0 +1,20 @@
+{
+  "" : {
+    "const-values" : "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/receive_sharing_intent-master.swiftconstvalues",
+    "dependencies" : "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/receive_sharing_intent-master.d",
+    "diagnostics" : "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/receive_sharing_intent-master.dia",
+    "emit-module-dependencies" : "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/receive_sharing_intent-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/receive_sharing_intent-master-emit-module.dia",
+    "swift-dependencies" : "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/receive_sharing_intent-master.swiftdeps"
+  },
+  "/Users/emineaydinli/.pub-cache/hosted/pub.dev/receive_sharing_intent-1.8.1/ios/Classes/RSIShareViewController.swift" : {
+    "index-unit-output-path" : "/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/RSIShareViewController.o",
+    "llvm-bc" : "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/RSIShareViewController.bc",
+    "object" : "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/RSIShareViewController.o"
+  },
+  "/Users/emineaydinli/.pub-cache/hosted/pub.dev/receive_sharing_intent-1.8.1/ios/Classes/SwiftReceiveSharingIntentPlugin.swift" : {
+    "index-unit-output-path" : "/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/SwiftReceiveSharingIntentPlugin.o",
+    "llvm-bc" : "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/SwiftReceiveSharingIntentPlugin.bc",
+    "object" : "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/Objects-normal/arm64/SwiftReceiveSharingIntentPlugin.o"
+  }
+}

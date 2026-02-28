@@ -66,5 +66,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- ShareExtension → ana uygulama iletişim için App Group -->
+	<key>AppGroupId</key>
+	<string>group.com.example.sosyalMedya</string>
+	<!-- ShareExtension'ın ana uygulamayı açmak için kullandığı URL scheme -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ShareMedia-com.example.sosyalMedya</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -1,0 +1,5 @@
+ extern const unsigned char receive_sharing_intentVersionString[];
+ extern const double receive_sharing_intentVersionNumber;
+
+ const unsigned char receive_sharing_intentVersionString[] __attribute__ ((used)) = "@(#)PROGRAM:receive_sharing_intent  PROJECT:Pods-1" "\n";
+ const double receive_sharing_intentVersionNumber __attribute__ ((used)) = (double)1.;

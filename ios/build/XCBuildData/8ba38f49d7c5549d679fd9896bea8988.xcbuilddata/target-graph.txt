@@ -1,0 +1,18 @@
+Target dependency graph (7 targets)
+Target 'Pods-ShareExtension' in project 'Pods'
+➜ Explicit dependency on target 'Flutter' in project 'Pods'
+➜ Explicit dependency on target 'Pods-Runner' in project 'Pods'
+➜ Explicit dependency on target 'receive_sharing_intent' in project 'Pods'
+Target 'Pods-RunnerTests' in project 'Pods'
+➜ Explicit dependency on target 'Pods-Runner' in project 'Pods'
+Target 'Pods-Runner' in project 'Pods'
+➜ Explicit dependency on target 'Flutter' in project 'Pods'
+➜ Explicit dependency on target 'receive_sharing_intent' in project 'Pods'
+➜ Explicit dependency on target 'url_launcher_ios' in project 'Pods'
+Target 'url_launcher_ios' in project 'Pods'
+➜ Explicit dependency on target 'Flutter' in project 'Pods'
+➜ Explicit dependency on target 'url_launcher_ios-url_launcher_ios_privacy' in project 'Pods'
+Target 'url_launcher_ios-url_launcher_ios_privacy' in project 'Pods' (no dependencies)
+Target 'receive_sharing_intent' in project 'Pods'
+➜ Explicit dependency on target 'Flutter' in project 'Pods'
+Target 'Flutter' in project 'Pods' (no dependencies)

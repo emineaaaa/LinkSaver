@@ -1,0 +1,23 @@
+{
+  'version': 0,
+  'use-external-names': 'false',
+  'case-sensitive': 'false',
+  'roots': [{
+    'type': 'directory',
+    'name': "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Release-iphoneos/receive_sharing_intent/receive_sharing_intent.framework/Modules"
+    'contents': [{
+      'type': 'file',
+      'name': "module.modulemap",
+      'external-contents': "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/unextended-module.modulemap",
+    }]
+    },
+    {
+    'type': 'directory',
+    'name': "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Release-iphoneos/receive_sharing_intent/receive_sharing_intent.framework/Headers"
+    'contents': [{
+      'type': 'file',
+      'name': "receive_sharing_intent-Swift.h",
+      'external-contents': "/Users/emineaydinli/Desktop/sosyalmedyakutup/ios/build/Pods.build/Release-iphoneos/receive_sharing_intent.build/unextended-interface-header.h",
+    }]
+    }]
+}
