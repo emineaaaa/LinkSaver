@@ -13,6 +13,7 @@ class LinkCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback onRefresh;
+  final VoidCallback onEdit;
   final VoidCallback? onToggleFavorite;
 
   const LinkCard({
@@ -21,6 +22,7 @@ class LinkCard extends StatelessWidget {
     required this.onTap,
     required this.onDelete,
     required this.onRefresh,
+    required this.onEdit,
     this.onToggleFavorite,
   });
 
@@ -112,9 +114,18 @@ class LinkCard extends StatelessWidget {
 
     return Dismissible(
       key: Key(link.id),
-      direction: DismissDirection.endToStart,
-      background: _buildDismissBackground(),
-      confirmDismiss: (_) async => true,
+      direction: DismissDirection.horizontal,
+      // Sağa kaydır → düzenle (yeşil/teal)
+      background: _buildEditBackground(),
+      // Sola kaydır → sil (kırmızı)
+      secondaryBackground: _buildDismissBackground(),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          onEdit();
+          return false; // kartı silme, sadece düzenleme aç
+        }
+        return true; // sola kaydırma → gerçekten sil
+      },
       onDismissed: (_) => onDelete(),
       child: GestureDetector(
         onTap: onTap,
@@ -254,6 +265,32 @@ class LinkCard extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: FaIcon(platform.icon, color: platform.color, size: 20),
+    );
+  }
+
+  Widget _buildEditBackground() {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.only(left: 22),
+      child: const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.edit_outlined, color: Colors.white, size: 26),
+          SizedBox(height: 3),
+          Text(
+            'Düzenle',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

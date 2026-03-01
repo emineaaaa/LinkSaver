@@ -161,6 +161,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
                 onTap: () => _openLink(link.url),
                 onDelete: () => StorageService.delete(link.id),
                 onRefresh: () => _refreshMetadata(link),
+                onEdit: () => SaveLinkBottomSheet.showEdit(context, link),
                 onToggleFavorite: () =>
                     StorageService.toggleFavorite(link.id),
               );

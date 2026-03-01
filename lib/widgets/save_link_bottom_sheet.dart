@@ -20,8 +20,9 @@ import 'logo_widget.dart';
 ///   • [✓ Kaydet] düğmesi
 class SaveLinkBottomSheet extends StatefulWidget {
   final String? initialUrl;
+  final LinkModel? editingLink; // null = yeni kayıt, non-null = düzenleme
 
-  const SaveLinkBottomSheet({super.key, this.initialUrl});
+  const SaveLinkBottomSheet({super.key, this.initialUrl, this.editingLink});
 
   static Future<void> show(BuildContext context, {String? initialUrl}) {
     return showModalBottomSheet(
@@ -29,6 +30,15 @@ class SaveLinkBottomSheet extends StatefulWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => SaveLinkBottomSheet(initialUrl: initialUrl),
+    );
+  }
+
+  static Future<void> showEdit(BuildContext context, LinkModel link) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => SaveLinkBottomSheet(editingLink: link),
     );
   }
 
@@ -49,10 +59,17 @@ class _SaveLinkBottomSheetState extends State<SaveLinkBottomSheet> {
   // Seçili klasör adları (çoklu seçim)
   final Set<String> _selectedFolders = {};
 
+  bool get _isEditing => widget.editingLink != null;
+
   @override
   void initState() {
     super.initState();
-    if (widget.initialUrl != null) {
+    if (_isEditing) {
+      final link = widget.editingLink!;
+      _urlController.text = link.url;
+      _titleController.text = link.title ?? '';
+      _selectedFolders.addAll(link.tags);
+    } else if (widget.initialUrl != null) {
       _urlController.text = widget.initialUrl!;
     }
   }
@@ -73,34 +90,45 @@ class _SaveLinkBottomSheetState extends State<SaveLinkBottomSheet> {
 
     setState(() => _isSaving = true);
 
-    final link = LinkModel(
-      id: _uuid.v4(),
-      url: url,
-      title: _titleController.text.trim().isEmpty
-          ? null
-          : _titleController.text.trim(),
-      savedAt: DateTime.now(),
-      tags: _selectedFolders.toList(),
-    );
-
-    await StorageService.add(link);
-
     // Seçilen klasörleri kayıt et (yoksa oluştur)
     for (final name in _selectedFolders) {
       await StorageService.addFolder(name);
     }
 
-    if (mounted) Navigator.pop(context);
-
-    // Arka planda metadata çek
-    MetadataService.fetch(url).then((meta) async {
-      await StorageService.updateMetadata(
-        link.id,
-        title: link.title == null ? meta['title'] : null,
-        description: meta['description'],
-        faviconUrl: meta['favicon'],
+    if (_isEditing) {
+      // ── Düzenleme modu ─────────────────────────────────────────────
+      final id = widget.editingLink!.id;
+      await StorageService.updateLink(
+        id,
+        title: _titleController.text.trim(),
+        url: url,
+        tags: _selectedFolders.toList(),
       );
-    });
+      if (mounted) Navigator.pop(context);
+    } else {
+      // ── Yeni kayıt modu ────────────────────────────────────────────
+      final link = LinkModel(
+        id: _uuid.v4(),
+        url: url,
+        title: _titleController.text.trim().isEmpty
+            ? null
+            : _titleController.text.trim(),
+        savedAt: DateTime.now(),
+        tags: _selectedFolders.toList(),
+      );
+      await StorageService.add(link);
+      if (mounted) Navigator.pop(context);
+
+      // Arka planda metadata çek (sadece yeni kayıtta)
+      MetadataService.fetch(url).then((meta) async {
+        await StorageService.updateMetadata(
+          link.id,
+          title: link.title == null ? meta['title'] : null,
+          description: meta['description'],
+          faviconUrl: meta['favicon'],
+        );
+      });
+    }
   }
 
   Future<void> _createNewFolder() async {
@@ -246,7 +274,9 @@ class _SaveLinkBottomSheetState extends State<SaveLinkBottomSheet> {
                     ),
                   )
                 : const Icon(Icons.check_rounded, size: 20),
-            label: Text(_isSaving ? 'Kaydediliyor...' : 'Kaydet'),
+            label: Text(_isSaving
+                ? (_isEditing ? 'Güncelleniyor...' : 'Kaydediliyor...')
+                : (_isEditing ? 'Güncelle' : 'Kaydet')),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
               shape: RoundedRectangleBorder(

@@ -74,6 +74,21 @@ class StorageService {
     }
   }
 
+  static Future<void> updateLink(
+    String id, {
+    String? title,
+    String? url,
+    List<String>? tags,
+  }) async {
+    final link = box.get(id);
+    if (link != null) {
+      if (title != null) link.title = title.isEmpty ? null : title;
+      if (url != null) link.url = url;
+      if (tags != null) link.tags = tags;
+      await link.save();
+    }
+  }
+
   static Future<void> updateMetadata(
     String id, {
     String? title,

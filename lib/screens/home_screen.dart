@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../core/theme/app_theme.dart';
+import '../main.dart';
 import '../models/link_model.dart';
 import '../services/storage_service.dart';
 import '../services/metadata_service.dart';
@@ -33,9 +34,31 @@ class _HomeScreenState extends State<HomeScreen> {
   late final _linksListenable = StorageService.box.listenable();
 
   @override
+  void initState() {
+    super.initState();
+    LinkSaverApp.sharedUrlNotifier.addListener(_onSharedUrl);
+    // Uygulama kapalıyken share yapıldıysa notifier zaten dolmuş olabilir
+    if (LinkSaverApp.sharedUrlNotifier.value != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _onSharedUrl());
+    }
+  }
+
+  @override
   void dispose() {
+    LinkSaverApp.sharedUrlNotifier.removeListener(_onSharedUrl);
     _searchController.dispose();
     super.dispose();
+  }
+
+  // ─── Share intent → bottom sheet ───────────────────────────────────────────
+
+  void _onSharedUrl() {
+    final url = LinkSaverApp.sharedUrlNotifier.value;
+    if (url == null || !mounted) return;
+    LinkSaverApp.sharedUrlNotifier.value = null; // tüket
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) SaveLinkBottomSheet.show(context, initialUrl: url);
+    });
   }
 
   // ─── Arama filtresi ────────────────────────────────────────────────────────
@@ -136,6 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: () => _openLink(link.url),
                         onDelete: () => StorageService.delete(link.id),
                         onRefresh: () => _refreshMetadata(link),
+                        onEdit: () =>
+                            SaveLinkBottomSheet.showEdit(context, link),
                         onToggleFavorite: () =>
                             StorageService.toggleFavorite(link.id),
                       );

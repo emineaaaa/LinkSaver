@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:uuid/uuid.dart';
 import 'core/theme/app_theme.dart';
 import 'models/link_model.dart';
 import 'models/folder_model.dart';
 import 'services/storage_service.dart';
-import 'services/metadata_service.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
@@ -21,13 +19,15 @@ void main() async {
 class LinkSaverApp extends StatefulWidget {
   const LinkSaverApp({super.key});
 
+  /// HomeScreen'in dinleyeceği URL bildirimi.
+  /// null → bekleyen URL yok.  String → bottom sheet açılacak.
+  static final sharedUrlNotifier = ValueNotifier<String?>(null);
+
   @override
   State<LinkSaverApp> createState() => _LinkSaverAppState();
 }
 
 class _LinkSaverAppState extends State<LinkSaverApp> {
-  final _uuid = const Uuid();
-
   @override
   void initState() {
     super.initState();
@@ -39,18 +39,18 @@ class _LinkSaverAppState extends State<LinkSaverApp> {
   void _listenForSharedLinks() {
     // Uygulama açıkken gelen paylaşım
     ReceiveSharingIntent.instance.getMediaStream().listen(
-      (files) => _handleShared(files),
+      (files) => _notifyShared(files),
       onError: (_) {},
     );
 
     // Uygulama kapalıyken gelen paylaşım ile açılma
     ReceiveSharingIntent.instance.getInitialMedia().then((files) {
-      _handleShared(files);
+      _notifyShared(files);
       ReceiveSharingIntent.instance.reset();
     });
   }
 
-  Future<void> _handleShared(List<SharedMediaFile> files) async {
+  void _notifyShared(List<SharedMediaFile> files) {
     for (final file in files) {
       final text = file.path;
       if (text.isEmpty) continue;
@@ -58,23 +58,11 @@ class _LinkSaverAppState extends State<LinkSaverApp> {
       final urlRegex = RegExp(r'https?://[^\s]+', caseSensitive: false);
       final match = urlRegex.firstMatch(text);
       final url = match?.group(0) ?? text;
+      if (url.isEmpty) continue;
 
-      final link = LinkModel(
-        id: _uuid.v4(),
-        url: url,
-        savedAt: DateTime.now(),
-      );
-      await StorageService.add(link);
-
-      // Arka planda metadata çek ve güncelle
-      MetadataService.fetch(url).then((meta) async {
-        await StorageService.updateMetadata(
-          link.id,
-          title: meta['title'],
-          description: meta['description'],
-          faviconUrl: meta['favicon'],
-        );
-      });
+      // HomeScreen'e bildir — bottom sheet URL ile açılacak
+      LinkSaverApp.sharedUrlNotifier.value = url;
+      break; // ilk URL yeterli
     }
   }
 
