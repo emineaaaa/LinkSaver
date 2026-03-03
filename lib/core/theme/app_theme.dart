@@ -42,6 +42,15 @@ class AppColors {
   static const Color divider = Color(0xFFEAEAF5);
   static const Color cardShadow = Color(0x0A000000);
 
+  // ── Dark mode renkleri ──────────────────────────────────────────────────
+  static const Color darkBackground = Color(0xFF0F0F1A);
+  static const Color darkSurface = Color(0xFF1A1A2E);
+  static const Color darkSearchFill = Color(0xFF252540);
+  static const Color darkTextPrimary = Color(0xFFF0F0F8);
+  static const Color darkTextSecondary = Color(0xFF8888AA);
+  static const Color darkDrawerItemBg = Color(0xFF252540);
+  static const Color darkDivider = Color(0xFF2A2A45);
+
   // ── Sosyal medya marka renkleri ─────────────────────────────────────────
   static const Color instagram = Color(0xFFE1306C);
   static const Color youtube = Color(0xFFFF0000);
@@ -194,4 +203,143 @@ class AppTheme {
       ),
     );
   }
+
+  static ThemeData get darkTheme {
+    final poppinsTextTheme =
+        GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme);
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        brightness: Brightness.dark,
+        primary: AppColors.primary,
+        secondary: AppColors.logoEnd,
+        surface: AppColors.darkSurface,
+        onPrimary: Colors.white,
+        onSurface: AppColors.darkTextPrimary,
+        onSurfaceVariant: AppColors.darkTextSecondary,
+        surfaceContainerHighest: AppColors.darkSearchFill,
+      ),
+      scaffoldBackgroundColor: AppColors.darkBackground,
+      fontFamily: GoogleFonts.poppins().fontFamily,
+      textTheme: poppinsTextTheme,
+
+      // ── AppBar ──────────────────────────────────────────────────────────
+      appBarTheme: const AppBarTheme(
+        backgroundColor: AppColors.darkBackground,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0.5,
+        shadowColor: Color(0x40000000),
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: AppColors.darkTextPrimary,
+          size: 24,
+        ),
+        titleTextStyle: TextStyle(
+          fontFamily: 'Poppins',
+          color: AppColors.darkTextPrimary,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -0.2,
+        ),
+      ),
+
+      // ── Drawer ──────────────────────────────────────────────────────────
+      drawerTheme: const DrawerThemeData(
+        backgroundColor: AppColors.darkSurface,
+        elevation: 16,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.horizontal(right: Radius.circular(24)),
+        ),
+      ),
+
+      // ── Input / TextField ────────────────────────────────────────────────
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.darkSearchFill,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        hintStyle: const TextStyle(
+          color: AppColors.darkTextSecondary,
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+
+      // ── ElevatedButton ──────────────────────────────────────────────────
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          padding:
+              const EdgeInsets.symmetric(vertical: 15, horizontal: 28),
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          textStyle: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.2,
+          ),
+        ),
+      ),
+
+      // ── Card ─────────────────────────────────────────────────────────────
+      cardTheme: CardThemeData(
+        color: AppColors.darkSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        margin: EdgeInsets.zero,
+      ),
+
+      // ── Divider ──────────────────────────────────────────────────────────
+      dividerTheme: const DividerThemeData(
+        color: AppColors.darkDivider,
+        thickness: 1,
+        space: 1,
+      ),
+
+      // ── SnackBar ─────────────────────────────────────────────────────────
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.primary,
+        contentTextStyle: const TextStyle(
+          color: Colors.white,
+          fontFamily: 'Poppins',
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+
+      // ── FloatingActionButton ─────────────────────────────────────────────
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 4,
+        shape: StadiumBorder(),
+      ),
+    );
   }
+}

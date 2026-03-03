@@ -20,8 +20,10 @@ class LinkSaverApp extends StatefulWidget {
   const LinkSaverApp({super.key});
 
   /// HomeScreen'in dinleyeceği URL bildirimi.
-  /// null → bekleyen URL yok.  String → bottom sheet açılacak.
   static final sharedUrlNotifier = ValueNotifier<String?>(null);
+
+  /// Dark / Light mod geçişi için global notifier.
+  static final themeNotifier = ValueNotifier<ThemeMode>(ThemeMode.light);
 
   @override
   State<LinkSaverApp> createState() => _LinkSaverAppState();
@@ -31,7 +33,24 @@ class _LinkSaverAppState extends State<LinkSaverApp> {
   @override
   void initState() {
     super.initState();
+    // Kayıtlı tema tercihini yükle
+    final saved = StorageService.settingsBox
+        .get('themeMode', defaultValue: 'light') as String;
+    LinkSaverApp.themeNotifier.value =
+        saved == 'dark' ? ThemeMode.dark : ThemeMode.light;
+    LinkSaverApp.themeNotifier.addListener(_saveTheme);
     _listenForSharedLinks();
+  }
+
+  @override
+  void dispose() {
+    LinkSaverApp.themeNotifier.removeListener(_saveTheme);
+    super.dispose();
+  }
+
+  void _saveTheme() {
+    final isDark = LinkSaverApp.themeNotifier.value == ThemeMode.dark;
+    StorageService.settingsBox.put('themeMode', isDark ? 'dark' : 'light');
   }
 
   // ─── Başka uygulamalardan gelen paylaşılan linkler ─────────────────────────
@@ -70,11 +89,18 @@ class _LinkSaverAppState extends State<LinkSaverApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'LinkSaver',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const HomeScreen(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: LinkSaverApp.themeNotifier,
+      builder: (context, themeMode, child) {
+        return MaterialApp(
+          title: 'LinkSaver',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
+          home: const HomeScreen(),
+        );
+      },
     );
   }
 }

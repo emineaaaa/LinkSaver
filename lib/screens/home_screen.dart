@@ -113,7 +113,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: AppColors.background,
       // Drawer navigasyonu FolderDrawer içinde yönetilir (nav.pop → nav.push)
       drawer: const FolderDrawer(),
       appBar: _buildAppBar(),
@@ -195,17 +194,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      backgroundColor: AppColors.background,
-      elevation: 0,
-      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.menu_rounded,
-            color: AppColors.textPrimary, size: 26),
+        icon: const Icon(Icons.menu_rounded, size: 26),
         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         tooltip: 'Menü',
       ),
       title: const LinkSaverLogo(size: 36),
       centerTitle: true,
+      actions: [
+        ValueListenableBuilder<ThemeMode>(
+          valueListenable: LinkSaverApp.themeNotifier,
+          builder: (context, mode, _) {
+            final isDark = mode == ThemeMode.dark;
+            return IconButton(
+              icon: Icon(
+                isDark
+                    ? Icons.wb_sunny_rounded
+                    : Icons.dark_mode_rounded,
+                size: 22,
+              ),
+              tooltip: isDark ? 'Açık mod' : 'Koyu mod',
+              onPressed: () {
+                LinkSaverApp.themeNotifier.value =
+                    isDark ? ThemeMode.light : ThemeMode.dark;
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -312,10 +328,10 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               hasLinks ? 'Sonuç bulunamadı' : 'Henüz link yok!',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
@@ -324,9 +340,9 @@ class _EmptyState extends StatelessWidget {
                   ? 'Farklı bir arama terimi deneyin.'
                   : '"+Save a link" düğmesiyle\nilk linkinizi kaydedin.',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1.5,
               ),
             ),

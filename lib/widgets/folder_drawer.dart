@@ -170,13 +170,13 @@ class _FolderTile extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: AppColors.drawerItemBg,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.folder_outlined,
                 size: 16,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(width: 10),
@@ -184,10 +184,10 @@ class _FolderTile extends StatelessWidget {
             Expanded(
               child: Text(
                 '${folder.name} ($count)',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -241,10 +241,10 @@ class _FavoriteLinkTile extends StatelessWidget {
                     : _domain(link.url),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ),
@@ -252,8 +252,9 @@ class _FavoriteLinkTile extends StatelessWidget {
               width: 36,
               height: 36,
               child: IconButton(
-                icon: const Icon(Icons.more_vert_rounded,
-                    size: 18, color: AppColors.textSecondary),
+                icon: Icon(Icons.more_vert_rounded,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant),
                 padding: EdgeInsets.zero,
                 onPressed: () => _showLinkOptions(context),
               ),
@@ -269,9 +270,9 @@ class _FavoriteLinkTile extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: Theme.of(ctx).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
         child: Column(
@@ -281,10 +282,10 @@ class _FavoriteLinkTile extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               link.title?.isNotEmpty == true ? link.title! : _domain(link.url),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+                color: Theme.of(ctx).colorScheme.onSurface,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -361,9 +362,9 @@ class _FolderOptionsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
       child: Column(
@@ -373,10 +374,10 @@ class _FolderOptionsSheet extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             folder.name,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           const Divider(height: 20),

@@ -7,12 +7,16 @@ class StorageService {
   static const String _linksBoxName = 'links';
   static const String _foldersBoxName = 'folders';
 
+  static const String _settingsBoxName = 'settings';
+
   static Box<LinkModel>? _box;
   static Box<FolderModel>? _folderBox;
+  static Box? _settingsBox;
 
   static Future<void> init() async {
     _box = await Hive.openBox<LinkModel>(_linksBoxName);
     _folderBox = await Hive.openBox<FolderModel>(_foldersBoxName);
+    _settingsBox = await Hive.openBox(_settingsBoxName);
   }
 
   // ─── Kutular ────────────────────────────────────────────────────────────────
@@ -29,6 +33,13 @@ class StorageService {
       throw StateError('StorageService henüz başlatılmadı. init() çağrın.');
     }
     return _folderBox!;
+  }
+
+  static Box get settingsBox {
+    if (_settingsBox == null || !_settingsBox!.isOpen) {
+      throw StateError('StorageService henüz başlatılmadı. init() çağrın.');
+    }
+    return _settingsBox!;
   }
 
   // ─── Linkler ────────────────────────────────────────────────────────────────

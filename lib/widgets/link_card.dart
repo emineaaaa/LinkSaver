@@ -130,10 +130,10 @@ class LinkCard extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-            boxShadow: [
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.all(Radius.circular(16)),
+            boxShadow: const [
               BoxShadow(
                 color: Color(0x0A000000),
                 blurRadius: 14,
@@ -161,10 +161,10 @@ class LinkCard extends StatelessWidget {
                           : _extractDomain(link.url),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 13,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         height: 1.35,
                       ),
                     ),
@@ -207,7 +207,7 @@ class LinkCard extends StatelessWidget {
                           : Icons.star_border_rounded,
                       color: link.isFavorite
                           ? Colors.amber.shade600
-                          : AppColors.textSecondary,
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                       size: 20,
                     ),
                   ),
