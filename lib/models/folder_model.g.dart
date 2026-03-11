@@ -21,13 +21,14 @@ class FolderModelAdapter extends TypeAdapter<FolderModel> {
       name: fields[1] as String,
       createdAt: fields[2] as DateTime,
       isFavorite: fields[3] as bool? ?? false,
+      password: fields[4] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, FolderModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class FolderModelAdapter extends TypeAdapter<FolderModel> {
       ..writeByte(2)
       ..write(obj.createdAt)
       ..writeByte(3)
-      ..write(obj.isFavorite);
+      ..write(obj.isFavorite)
+      ..writeByte(4)
+      ..write(obj.password);
   }
 
   @override

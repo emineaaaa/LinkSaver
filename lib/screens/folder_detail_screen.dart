@@ -137,7 +137,6 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: _buildAppBar(),
       body: ValueListenableBuilder(
         valueListenable: StorageService.box.listenable(),
@@ -186,14 +185,14 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
   // ─── AppBar ───────────────────────────────────────────────────────────────
 
   AppBar _buildAppBar() {
+    final cs = Theme.of(context).colorScheme;
     return AppBar(
-      backgroundColor: AppColors.background,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(
+        icon: Icon(
           Icons.arrow_back_ios_new_rounded,
-          color: AppColors.textPrimary,
+          color: cs.onSurface,
           size: 22,
         ),
         onPressed: () => Navigator.pop(context),
@@ -210,9 +209,9 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
       actions: [
         // Düzenle
         IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.edit_rounded,
-            color: AppColors.textSecondary,
+            color: cs.onSurfaceVariant,
             size: 20,
           ),
           onPressed: _showRenameDialog,
@@ -220,9 +219,9 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
         ),
         // Sil
         IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.delete_outline_rounded,
-            color: AppColors.textSecondary,
+            color: cs.onSurfaceVariant,
             size: 20,
           ),
           onPressed: _showDeleteDialog,
@@ -236,7 +235,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
             return IconButton(
               icon: Icon(
                 fav ? Icons.star_rounded : Icons.star_border_rounded,
-                color: fav ? Colors.amber.shade600 : AppColors.textSecondary,
+                color: fav ? Colors.amber.shade600 : cs.onSurfaceVariant,
                 size: 22,
               ),
               onPressed: () async {
@@ -258,6 +257,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
   // ─── Boş durum ────────────────────────────────────────────────────────────
 
   Widget _buildEmptyState() {
+    final cs = Theme.of(context).colorScheme;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -278,18 +278,18 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
           const SizedBox(height: 20),
           Text(
             '"$_currentFolderName" klasörü boş',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: cs.onSurface,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             '"+" düğmesiyle bu klasöre link ekleyin.',
             style: TextStyle(
               fontSize: 13,
-              color: AppColors.textSecondary,
+              color: cs.onSurfaceVariant,
             ),
           ),
         ],

@@ -194,4 +194,12 @@ class StorageService {
       await folder.save();
     }
   }
+
+  static Future<void> setFolderPassword(String id, String? password) async {
+    final folder = folderBox.get(id);
+    if (folder != null) {
+      folder.password = (password == null || password.isEmpty) ? null : password;
+      await folder.save();
+    }
+  }
 }

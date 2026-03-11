@@ -18,14 +18,29 @@ import 'logo_widget.dart';
 class FolderDrawer extends StatelessWidget {
   const FolderDrawer({super.key});
 
-  // ─── Navigasyon (BUG FIX: pop ÖNCE, sonra push) ──────────────────────────
+  // ─── Navigasyon — şifre varsa önce kontrol et ────────────────────────────
 
-  void _goToFolder(BuildContext context, String folderName) {
+  Future<void> _goToFolder(BuildContext context, FolderModel folder) async {
+    if (folder.password != null && folder.password!.isNotEmpty) {
+      final unlocked = await _checkPassword(context, folder.password!);
+      if (!unlocked || !context.mounted) return;
+    }
     final nav = Navigator.of(context);
-    nav.pop(); // Drawer'ı kapat → Stack: [HomeScreen]
+    nav.pop();
     nav.push(MaterialPageRoute(
-      builder: (_) => FolderDetailScreen(folderName: folderName),
-    )); // Stack: [HomeScreen, FolderDetailScreen]
+      builder: (_) => FolderDetailScreen(folderName: folder.name),
+    ));
+  }
+
+  // ─── Şifre doğrulama dialogu ──────────────────────────────────────────────
+
+  Future<bool> _checkPassword(BuildContext context, String correct) async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => _PasswordCheckDialog(correct: correct),
+        ) ??
+        false;
   }
 
   // ─── Favori link aç ──────────────────────────────────────────────────────
@@ -44,7 +59,8 @@ class FolderDrawer extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => _FolderOptionsSheet(folder: folder),
+      builder: (ctx) =>
+          _FolderOptionsSheet(folder: folder, parentContext: context),
     );
   }
 
@@ -82,7 +98,7 @@ class FolderDrawer extends StatelessWidget {
                       ...folders.map((f) => _FolderTile(
                             folder: f,
                             count: StorageService.getFolderLinkCount(f.name),
-                            onTap: () => _goToFolder(context, f.name),
+                            onTap: () => _goToFolder(context, f),
                             onMoreTap: () => _showFolderOptions(context, f),
                           )),
                       if (folders.isEmpty)
@@ -182,15 +198,29 @@ class _FolderTile extends StatelessWidget {
             const SizedBox(width: 10),
             // İsim + adet
             Expanded(
-              child: Text(
-                '${folder.name} ($count)',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      '${folder.name} ($count)',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (folder.password != null && folder.password!.isNotEmpty) ...[
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.lock_rounded,
+                      size: 13,
+                      color: AppColors.primary.withValues(alpha: 0.7),
+                    ),
+                  ],
+                ],
               ),
             ),
             // Üç nokta menü
@@ -356,8 +386,12 @@ Widget _dragHandle() {
 
 class _FolderOptionsSheet extends StatelessWidget {
   final FolderModel folder;
+  final BuildContext parentContext;
 
-  const _FolderOptionsSheet({required this.folder});
+  const _FolderOptionsSheet({
+    required this.folder,
+    required this.parentContext,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -388,7 +422,7 @@ class _FolderOptionsSheet extends StatelessWidget {
             title: const Text('Yeniden adlandır'),
             onTap: () {
               Navigator.pop(context);
-              _showRenameDialog(context);
+              _showRenameDialog(parentContext);
             },
           ),
 
@@ -411,19 +445,42 @@ class _FolderOptionsSheet extends StatelessWidget {
             },
           ),
 
+          // Şifre
+          ListTile(
+            leading: Icon(
+              folder.password != null && folder.password!.isNotEmpty
+                  ? Icons.lock_open_rounded
+                  : Icons.lock_rounded,
+              color: AppColors.primary,
+            ),
+            title: Text(
+              folder.password != null && folder.password!.isNotEmpty
+                  ? 'Şifre Yönet'
+                  : 'Şifre Koy',
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              _showPasswordSetDialog(parentContext);
+            },
+          ),
+
           // Sil
           ListTile(
             leading: const Icon(Icons.delete_outline_rounded,
                 color: Colors.redAccent),
             title: const Text('Klasörü sil',
                 style: TextStyle(color: Colors.redAccent)),
-            onTap: () {
-              Navigator.pop(context);
-              _confirmDelete(context);
-            },
+            onTap: () => _confirmDelete(context),
           ),
         ],
       ),
+    );
+  }
+
+  void _showPasswordSetDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => _PasswordSetDialog(folder: folder),
     );
   }
 
@@ -459,9 +516,25 @@ class _FolderOptionsSheet extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context) {
+  Future<void> _confirmDelete(BuildContext sheetContext) async {
+    // Şifre varsa — sheet hâlâ açıkken doğrula (sheetContext geçerli)
+    if (folder.password != null && folder.password!.isNotEmpty) {
+      final unlocked = await showDialog<bool>(
+            context: sheetContext,
+            barrierDismissible: false,
+            builder: (ctx) => _PasswordCheckDialog(correct: folder.password!),
+          ) ??
+          false;
+      if (!unlocked) return;
+    }
+
+    // Sheet'i kapat
+    if (sheetContext.mounted) Navigator.pop(sheetContext);
+
+    // Silme onayını parentContext üzerinden göster (sheet kapandıktan sonra)
+    if (!parentContext.mounted) return;
     showDialog(
-      context: context,
+      context: parentContext,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Klasörü sil'),
@@ -484,6 +557,186 @@ class _FolderOptionsSheet extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─── Şifre belirleme dialogu ───────────────────────────────────────────────
+
+class _PasswordSetDialog extends StatefulWidget {
+  final FolderModel folder;
+  const _PasswordSetDialog({required this.folder});
+
+  @override
+  State<_PasswordSetDialog> createState() => _PasswordSetDialogState();
+}
+
+class _PasswordSetDialogState extends State<_PasswordSetDialog> {
+  final _ctrl = TextEditingController();
+  bool _obscure = true;
+  bool get _hasPassword =>
+      widget.folder.password != null && widget.folder.password!.isNotEmpty;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: Text(_hasPassword ? 'Şifreyi Değiştir / Kaldır' : 'Şifre Koy'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_hasPassword)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                'Boş bırakırsan şifre kaldırılır.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          TextField(
+            controller: _ctrl,
+            autofocus: true,
+            obscureText: _obscure,
+            decoration: InputDecoration(
+              hintText: 'Şifre',
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+                  size: 20,
+                ),
+                onPressed: () => setState(() => _obscure = !_obscure),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('İptal'),
+        ),
+        if (_hasPassword)
+          TextButton(
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (ctx) =>
+                        _PasswordCheckDialog(correct: widget.folder.password!),
+                  ) ??
+                  false;
+              if (!confirmed || !context.mounted) return;
+              await StorageService.setFolderPassword(widget.folder.id, null);
+              if (context.mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Şifre kaldırıldı')),
+                );
+              }
+            },
+            child: const Text('Şifreyi Kaldır',
+                style: TextStyle(color: Colors.redAccent)),
+          ),
+        ElevatedButton(
+          onPressed: () async {
+            final pw = _ctrl.text.trim();
+            if (pw.isEmpty && !_hasPassword) return;
+            await StorageService.setFolderPassword(
+                widget.folder.id, pw.isEmpty ? null : pw);
+            if (context.mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(pw.isEmpty ? 'Şifre kaldırıldı' : 'Şifre kaydedildi'),
+                ),
+              );
+            }
+          },
+          child: const Text('Kaydet'),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Şifre doğrulama dialogu ───────────────────────────────────────────────
+
+class _PasswordCheckDialog extends StatefulWidget {
+  final String correct;
+  const _PasswordCheckDialog({required this.correct});
+
+  @override
+  State<_PasswordCheckDialog> createState() => _PasswordCheckDialogState();
+}
+
+class _PasswordCheckDialogState extends State<_PasswordCheckDialog> {
+  final _ctrl = TextEditingController();
+  bool _obscure = true;
+  bool _wrong = false;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_ctrl.text == widget.correct) {
+      Navigator.pop(context, true);
+    } else {
+      setState(() => _wrong = true);
+      _ctrl.clear();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Row(
+        children: [
+          Icon(Icons.lock_rounded, color: AppColors.primary, size: 20),
+          SizedBox(width: 8),
+          Text('Şifre Gerekli'),
+        ],
+      ),
+      content: TextField(
+        controller: _ctrl,
+        autofocus: true,
+        obscureText: _obscure,
+        onSubmitted: (_) => _submit(),
+        decoration: InputDecoration(
+          hintText: 'Şifre',
+          errorText: _wrong ? 'Yanlış şifre' : null,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+              size: 20,
+            ),
+            onPressed: () => setState(() => _obscure = !_obscure),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('İptal'),
+        ),
+        ElevatedButton(
+          onPressed: _submit,
+          child: const Text('Aç'),
+        ),
+      ],
     );
   }
 }

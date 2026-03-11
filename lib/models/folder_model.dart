@@ -16,10 +16,14 @@ class FolderModel extends HiveObject {
   @HiveField(3)
   late bool isFavorite;
 
+  @HiveField(4)
+  String? password;
+
   FolderModel({
     required this.id,
     required this.name,
     required this.createdAt,
     this.isFavorite = false,
+    this.password,
   });
 }
