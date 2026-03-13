@@ -38,7 +38,7 @@ class FolderDrawer extends StatelessWidget {
     return await showDialog<bool>(
           context: context,
           barrierDismissible: false,
-          builder: (ctx) => _PasswordCheckDialog(correct: correct),
+          builder: (ctx) => PasswordCheckDialog(correct: correct),
         ) ??
         false;
   }
@@ -100,6 +100,8 @@ class FolderDrawer extends StatelessWidget {
                             count: StorageService.getFolderLinkCount(f.name),
                             onTap: () => _goToFolder(context, f),
                             onMoreTap: () => _showFolderOptions(context, f),
+                            onFavoriteTap: () =>
+                                StorageService.toggleFolderFavorite(f.id),
                           )),
                       if (folders.isEmpty)
                         const _EmptyHint(
@@ -165,12 +167,14 @@ class _FolderTile extends StatelessWidget {
   final int count;
   final VoidCallback onTap;
   final VoidCallback onMoreTap;
+  final VoidCallback onFavoriteTap;
 
   const _FolderTile({
     required this.folder,
     required this.count,
     required this.onTap,
     required this.onMoreTap,
+    required this.onFavoriteTap,
   });
 
   @override
@@ -223,10 +227,28 @@ class _FolderTile extends StatelessWidget {
                 ],
               ),
             ),
+            // Yıldız butonu
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: IconButton(
+                icon: Icon(
+                  folder.isFavorite
+                      ? Icons.star_rounded
+                      : Icons.star_border_rounded,
+                  size: 18,
+                  color: folder.isFavorite
+                      ? Colors.amber.shade600
+                      : AppColors.textSecondary,
+                ),
+                padding: EdgeInsets.zero,
+                onPressed: onFavoriteTap,
+              ),
+            ),
             // Üç nokta menü
             SizedBox(
-              width: 36,
-              height: 36,
+              width: 32,
+              height: 32,
               child: IconButton(
                 icon: const Icon(Icons.more_vert_rounded,
                     size: 18, color: AppColors.textSecondary),
@@ -426,25 +448,6 @@ class _FolderOptionsSheet extends StatelessWidget {
             },
           ),
 
-          // Favori
-          ListTile(
-            leading: Icon(
-              folder.isFavorite
-                  ? Icons.star_rounded
-                  : Icons.star_border_rounded,
-              color: folder.isFavorite
-                  ? Colors.amber.shade600
-                  : AppColors.textSecondary,
-            ),
-            title: Text(
-              folder.isFavorite ? 'Favoriden kaldır' : 'Favorilere ekle',
-            ),
-            onTap: () async {
-              await StorageService.toggleFolderFavorite(folder.id);
-              if (context.mounted) Navigator.pop(context);
-            },
-          ),
-
           // Şifre
           ListTile(
             leading: Icon(
@@ -522,7 +525,7 @@ class _FolderOptionsSheet extends StatelessWidget {
       final unlocked = await showDialog<bool>(
             context: sheetContext,
             barrierDismissible: false,
-            builder: (ctx) => _PasswordCheckDialog(correct: folder.password!),
+            builder: (ctx) => PasswordCheckDialog(correct: folder.password!),
           ) ??
           false;
       if (!unlocked) return;
@@ -632,7 +635,7 @@ class _PasswordSetDialogState extends State<_PasswordSetDialog> {
                     context: context,
                     barrierDismissible: false,
                     builder: (ctx) =>
-                        _PasswordCheckDialog(correct: widget.folder.password!),
+                        PasswordCheckDialog(correct: widget.folder.password!),
                   ) ??
                   false;
               if (!confirmed || !context.mounted) return;
@@ -650,15 +653,12 @@ class _PasswordSetDialogState extends State<_PasswordSetDialog> {
         ElevatedButton(
           onPressed: () async {
             final pw = _ctrl.text.trim();
-            if (pw.isEmpty && !_hasPassword) return;
-            await StorageService.setFolderPassword(
-                widget.folder.id, pw.isEmpty ? null : pw);
+            if (pw.isEmpty) return; // boş bırakılırsa "Şifreyi Kaldır" butonu kullanılmalı
+            await StorageService.setFolderPassword(widget.folder.id, pw);
             if (context.mounted) {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(pw.isEmpty ? 'Şifre kaldırıldı' : 'Şifre kaydedildi'),
-                ),
+                const SnackBar(content: Text('Şifre kaydedildi')),
               );
             }
           },
@@ -671,15 +671,15 @@ class _PasswordSetDialogState extends State<_PasswordSetDialog> {
 
 // ─── Şifre doğrulama dialogu ───────────────────────────────────────────────
 
-class _PasswordCheckDialog extends StatefulWidget {
+class PasswordCheckDialog extends StatefulWidget {
   final String correct;
-  const _PasswordCheckDialog({required this.correct});
+  const PasswordCheckDialog({super.key, required this.correct});
 
   @override
-  State<_PasswordCheckDialog> createState() => _PasswordCheckDialogState();
+  State<PasswordCheckDialog> createState() => PasswordCheckDialogState();
 }
 
-class _PasswordCheckDialogState extends State<_PasswordCheckDialog> {
+class PasswordCheckDialogState extends State<PasswordCheckDialog> {
   final _ctrl = TextEditingController();
   bool _obscure = true;
   bool _wrong = false;

@@ -8,6 +8,7 @@ import '../services/storage_service.dart';
 import '../services/metadata_service.dart';
 import '../widgets/link_card.dart';
 import '../widgets/save_link_bottom_sheet.dart';
+import '../widgets/folder_drawer.dart';
 
 /// Figma Anasayfa-6 ekranına sadık "Klasör Detay" ekranı:
 ///   • Geri ok (sol)
@@ -101,9 +102,22 @@ class _FolderDetailScreenState extends State<FolderDetailScreen> {
 
   // ─── Klasörü sil ──────────────────────────────────────────────────────────
 
-  void _showDeleteDialog() {
+  Future<void> _showDeleteDialog() async {
     final folder = _folder;
     if (folder == null) return;
+
+    // Şifreli klasörde önce şifre doğrula
+    if (folder.password != null && folder.password!.isNotEmpty) {
+      final unlocked = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => PasswordCheckDialog(correct: folder.password!),
+          ) ??
+          false;
+      if (!unlocked || !mounted) return;
+    }
+
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(

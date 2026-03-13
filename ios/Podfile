@@ -35,10 +35,7 @@ target 'Runner' do
   end
 
   # ShareExtension: iOS Paylaş menüsünde LinkSaver'ı göstermek için
-  target 'ShareExtension' do
-    inherit! :search_paths
-    pod 'receive_sharing_intent', :path => '.symlinks/plugins/receive_sharing_intent/ios'
-  end
+  
 end
 
 post_install do |installer|
@@ -53,9 +50,7 @@ post_install do |installer|
       config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'NO'
       
       # Multiple commands hatası için çıktı ismini sabitleyin
-      if target.name == 'ShareExtension'
-        config.build_settings['PRODUCT_NAME'] = 'ShareExtension'
-      end
+      
     end
   end
 end

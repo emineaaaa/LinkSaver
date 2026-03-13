@@ -337,8 +337,8 @@ class _FolderSelector extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   color: selectedFolders.isEmpty
-                      ? AppColors.textSecondary
-                      : AppColors.textPrimary,
+                      ? Theme.of(context).colorScheme.onSurfaceVariant
+                      : Theme.of(context).colorScheme.onSurface,
                   fontWeight: selectedFolders.isEmpty
                       ? FontWeight.w400
                       : FontWeight.w500,
@@ -396,7 +396,8 @@ class _FolderDropdownList extends StatelessWidget {
             offset: Offset(0, 4),
           ),
         ],
-        border: Border.all(color: AppColors.divider),
+        border: Border.all(
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.6)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
